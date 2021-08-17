@@ -3,7 +3,24 @@ pipeline {
     agent any
     
     stages {
-
+        
+      stage('Dependency check') {
+          steps {
+              sh "mvn --batch-mode dependency-check:check"
+          }
+          post {
+              always {
+                  publishHTML(target:[
+                      allowMissing: true,
+                      alwaysLinkToLastBuild: true,
+                      keepAll: true,
+                      reportDir: 'target',
+                      reportFiles: 'dependency-check-report.html',
+                      reportName: "OWASP Dependency Check Report"
+                  ])
+              }
+          }
+      }
         stage('Build') {
             steps {
                 echo 'Build'
@@ -27,7 +44,7 @@ pipeline {
         }
         
         stage('Deploy') {
-            steps {
+            steps {OWASP Dependency Check 
                 echo 'Deploy'
                 sh '''
                     for runName in `docker ps | grep "alpine-petclinic" | awk '{print $1}'`
